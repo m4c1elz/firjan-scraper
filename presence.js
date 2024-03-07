@@ -1,4 +1,4 @@
-import puppeteer from "puppeteer"
+import puppeteer, { Browser } from "puppeteer"
 import inquirer from "inquirer"
 
 function delay(time) {
@@ -52,8 +52,8 @@ async function main() {
 		},
 	])
 
-	const bdetailRowser = await puppeteer.launch({ headless: false })
-	const page = await bdetailRowser.newPage()
+	const browser = await puppeteer.launch({ headless: false })
+	const page = await browser.newPage()
 
 	console.log("Acessando o portal do aluno...")
 	await page.goto(
@@ -123,21 +123,26 @@ async function main() {
 				titulos.push(title)
 			})
 
-			for (let i = 0; i < titulos.length; i++) {
-				const item = detailRows[i].querySelector(
-					`td:nth-child(5) > span`
-				).textContent
-				presencas.push(item)
+			for (let i = 3; i < titulos.length; i++) {
+				const mes = detailRows[0].querySelector(
+					`td:nth-child(${i + 1})`
+				)
+				const mesTexto = mes.textContent
+				presencas.push({
+					[titulos[i]]: mesTexto,
+				})
 			}
 
 			detailRows.forEach((row) => {
 				const nome = row.querySelector("td:nth-child(2)").textContent
 				materias.push(nome)
 			})
+
 			return { materias, titulos, presencas }
 		}
 	}, curso.option)
 	console.log(presences)
+	await browser.close()
 }
 
 main()

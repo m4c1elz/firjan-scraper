@@ -7,7 +7,7 @@ function delay(time) {
 	})
 }
 
-;(async () => {
+async function main() {
 	console.log("Bem-vindo ao scraper de notas da firjan!")
 	const cpf = await inquirer.prompt([
 		{
@@ -129,11 +129,12 @@ function delay(time) {
 			for (let i = 0; i <= materias.length; i++) {
 				if (materias[i].includes("TI")) break // remove as últimas disciplinas que são do SENAI e estão em outro portal
 				lista.push({
-					Matéria: materias[i],
-					"Primeiro Bimestre": Number(notas1[i]),
-					"Segundo Bimestre": Number(notas2[i]),
-					"Terceiro Bimestre": Number(notas3[i]),
-					"Quarto Bimestre": Number(notas4[i]),
+					[materias[i]]: {
+						"Primeiro Bimestre": Number(notas1[i]),
+						"Segundo Bimestre": Number(notas2[i]),
+						"Terceiro Bimestre": Number(notas3[i]),
+						"Quarto Bimestre": Number(notas4[i]),
+					},
 				})
 			}
 			return lista
@@ -157,4 +158,6 @@ function delay(time) {
 	}, curso.option)
 	console.log(list)
 	await browser.close()
-})()
+}
+
+main()
