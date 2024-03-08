@@ -1,4 +1,4 @@
-import puppeteer, { Browser } from "puppeteer"
+import puppeteer from "puppeteer"
 import inquirer from "inquirer"
 
 function delay(time) {
@@ -52,7 +52,7 @@ async function main() {
 		},
 	])
 
-	const browser = await puppeteer.launch({ headless: false })
+	const browser = await puppeteer.launch()
 	const page = await browser.newPage()
 
 	console.log("Acessando o portal do aluno...")
@@ -123,25 +123,41 @@ async function main() {
 				titulos.push(title)
 			})
 
-			for (let i = 3; i < titulos.length; i++) {
-				const mes = detailRows[0].querySelector(
-					`td:nth-child(${i + 1})`
-				)
-				const mesTexto = mes.textContent
-				presencas.push({
-					[titulos[i]]: mesTexto,
-				})
-			}
+			titulos = titulos.slice(3, titulos.length - 1)
 
 			detailRows.forEach((row) => {
 				const nome = row.querySelector("td:nth-child(2)").textContent
 				materias.push(nome)
+				presencas.push({
+					[nome]: [],
+				})
 			})
+
+			materias = materias.slice(0, 6)
+
+			// pra cada row
+			for (let r = 0; r <= materias.length; r++) {
+				let mesConta = 0
+				// pra cada conteúdo de row
+				for (let i = 3; i <= titulos.length; i++) {
+					const falta = detailRows[r].querySelector(
+						`td:nth-child(${i + 1})`
+					)
+					const faltaTexto = falta.textContent
+					presencas.forEach((subject) => {
+						// Object.assign(subject, { [titulos[r]]: faltaTexto })
+						const subObject = Object.values(subject)[0]
+						subObject.push({ [titulos[mesConta]]: faltaTexto })
+					})
+					mesConta++
+				}
+				mesConta = 0
+			}
 
 			return { materias, titulos, presencas }
 		}
 	}, curso.option)
-	console.log(presences)
+	console.log(JSON.stringify(presences, null, 2))
 	await browser.close()
 }
 
