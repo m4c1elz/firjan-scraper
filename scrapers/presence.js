@@ -46,6 +46,14 @@ async function getPresence() {
 					name: "SESI - 2023",
 					value: 4,
 				},
+				{
+					name: "SENAI - 2022",
+					value: 5,
+				},
+				{
+					name: "SESI - 2022",
+					value: 6,
+				},
 			],
 		},
 	])
@@ -105,35 +113,37 @@ async function getPresence() {
 		const titleElements = document.querySelectorAll(
 			"#faltasGrid > div > div.k-grid-header > div > table > thead > tr > th > a"
 		)
-		const detailRows = document.querySelectorAll("#faltasGrid > div > div.k-grid-content.k-auto-scrollable > table > tbody > tr")
+		const detailRows = document.querySelectorAll(
+			"#faltasGrid > div > div.k-grid-content.k-auto-scrollable > table > tbody > tr"
+		)
 
 		let presencas = [],
 			titulos = []
 
-		titleElements.forEach(title => titulos.push(title.textContent))
+		titleElements.forEach((title) => titulos.push(title.textContent))
 
 		detailRows.forEach((row, rowIndex) => {
 			// pegar a materia
 			const subject = row.querySelector("td:nth-child(2) > a").textContent
 			presencas.push({
-				[subject]: {}
+				[subject]: {},
 			})
 
 			// pegar as notas de devida materia
 			for (let i = 3; i < titulos.length; i++) {
-				const grade = row.querySelector(`td:nth-child(${i + 1}) > span`).textContent
+				const grade = row.querySelector(`td:nth-child(${i + 1}) > span`)
+					.textContent
 
 				// adicionar esta nota ao indice da coluna atual
 				const currentSubject = presencas[rowIndex]
 				const subObject = Object.values(currentSubject)[0]
-				Object.assign(subObject, { 
-					[titulos[i]]: grade
+				Object.assign(subObject, {
+					[titulos[i]]: grade,
 				})
 			}
 		})
 
 		return { presencas }
-
 	}, curso.option)
 	await browser.close()
 	return presences
