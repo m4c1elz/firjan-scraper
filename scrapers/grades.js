@@ -47,6 +47,14 @@ async function getGrades() {
 					name: "SESI - 2023",
 					value: 4,
 				},
+				{
+					name: "SENAI - 2022",
+					value: 5,
+				},
+				{
+					name: "SESI - 2022",
+					value: 6,
+				},
 			],
 		},
 	])
