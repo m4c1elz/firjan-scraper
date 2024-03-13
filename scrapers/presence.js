@@ -101,83 +101,39 @@ async function getPresence() {
 
 	await page.waitForSelector("#faltasGrid")
 	await delay(3000) //ter certeza de que carregou
-	const presences = await page.evaluate((course) => {
+	const presences = await page.evaluate(() => {
 		const titleElements = document.querySelectorAll(
 			"#faltasGrid > div > div.k-grid-header > div > table > thead > tr > th > a"
 		)
+		const detailRows = document.querySelectorAll("#faltasGrid > div > div.k-grid-content.k-auto-scrollable > table > tbody > tr")
 
-		if (course % 2 == 0) {
-			const detailRows = document.querySelectorAll("#faltasGrid > div > div.k-grid-content.k-auto-scrollable > table > tbody > tr")
+		let presencas = [],
+			titulos = []
 
-			let presencas = [],
-				titulos = []
+		titleElements.forEach(title => titulos.push(title.textContent))
 
-			titleElements.forEach(title => titulos.push(title.textContent))
+		detailRows.forEach((row, rowIndex) => {
+			// pegar a materia
+			const subject = row.querySelector("td:nth-child(2) > a").textContent
+			presencas.push({
+				[subject]: {}
+			})
 
-			detailRows.forEach((row, rowIndex) => {
-				// pegar a materia
-				const subject = row.querySelector("td:nth-child(2) > a").textContent
-				presencas.push({
-					[subject]: {}
+			// pegar as notas de devida materia
+			for (let i = 3; i < titulos.length; i++) {
+				const grade = row.querySelector(`td:nth-child(${i + 1}) > span`).textContent
+
+				// adicionar esta nota ao indice da coluna atual
+				const currentSubject = presencas[rowIndex]
+				const subObject = Object.values(currentSubject)[0]
+				Object.assign(subObject, { 
+					[titulos[i]]: grade
 				})
+			}
+		})
 
-				// pegar as notas de devida materia
-				for (let i = 3; i < titulos.length; i++) {
-					const grade = row.querySelector(`td:nth-child(${i + 1}) > span`).textContent
+		return { presencas }
 
-					// adicionar esta nota ao indice da coluna atual
-					const currentSubject = presencas[rowIndex]
-					const subObject = Object.values(currentSubject)[0]
-					Object.assign(subObject, { 
-						[titulos[i]]: grade
-					})
-				}
-			})
-
-			return { presencas }
-		} else {
-			const detailRows = document.querySelectorAll("#faltasGrid > div > div.k-grid-content.k-auto-scrollable > table > tbody > tr")
-			let materias = [],
-				presencas = [],
-				titulos = []
-
-			titleElements.forEach((item) => {
-				const title = item.textContent
-				titulos.push(title)
-			})
-
-			detailRows.forEach((row) => {
-				const nome = row.querySelector("td:nth-child(2)").textContent
-				materias.push(nome)
-				presencas.push({
-					[nome]: {},
-				})
-			})
-
-			materias = materias.slice(0, 6)
-			titulos = titulos.slice(3, titulos.length - 1)
-
-			// pra cada row
-			materias.forEach((materia, materiaIndex) => {
-				let mesConta = 0
-				// pra cada conteúdo de row
-				for (let i = 0; i < titulos.length; i++) {
-					const falta = detailRows[materiaIndex].querySelector(
-						`td:nth-child(${i + 4})`
-					)
-					const faltaTexto = falta.textContent
-
-					const currentPresenca = presencas[materiaIndex]
-					const subObject = Object.values(currentPresenca)[0] 
-					Object.assign(subObject, { 
-						[titulos[mesConta]]: faltaTexto 
-					})
-					mesConta++
-				}
-			})
-
-			return { presencas }
-		}
 	}, curso.option)
 	await browser.close()
 	return presences
