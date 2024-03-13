@@ -34,6 +34,7 @@ async function main() {
 			console.log(JSON.stringify(presences, null, 2) + "\n")
 		}
 		if (value >= 2) {
+			console.log("Adeus!\n")
 			break
 		}
 		continue

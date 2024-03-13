@@ -13,6 +13,7 @@ async function getPresence() {
 			type: "password",
 			name: "value",
 			message: "Insira seu CPF:",
+			prefix: "@",
 		},
 	])
 
@@ -21,6 +22,7 @@ async function getPresence() {
 			type: "password",
 			name: "value",
 			message: "Insira sua senha:",
+			prefix: "#",
 		},
 	])
 

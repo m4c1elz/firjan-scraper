@@ -53,14 +53,14 @@ async function getGrades() {
 				},
 				{
 					name: "SESI - 2022",
-					value: 6,
+					value: 7,
 				},
 			],
 		},
 	])
 
 	console.log("Inicializando...")
-	const browser = await puppeteer.launch()
+	const browser = await puppeteer.launch({ headless: false })
 	const page = await browser.newPage()
 
 	console.log("Acessando o portal do aluno...")
@@ -119,7 +119,7 @@ async function getGrades() {
 			"#MYGRID > div > div.k-grid-content.k-auto-scrollable > table > tbody > tr"
 		)
 		let lista = []
-		if (course % 2 == 0) {
+		if (course % 2 == 0 || course == 7) {
 			let materias = [],
 				notas1 = [],
 				notas2 = [],
@@ -127,14 +127,16 @@ async function getGrades() {
 				notas4 = []
 
 			table.forEach((item) => {
-				materias.push(item.querySelector("td a").textContent)
+				materias.push(
+					item.querySelector("td:nth-child(3) > a").textContent
+				)
 				notas1.push(item.querySelectorAll("td")[6].textContent)
 				notas2.push(item.querySelectorAll("td")[9].textContent)
 				notas3.push(item.querySelectorAll("td")[12].textContent)
 				notas4.push(item.querySelectorAll("td")[15].textContent)
 			})
 			for (let i = 0; i <= materias.length; i++) {
-				if (materias[i].includes("TI")) break // remove as últimas disciplinas que são do SENAI e estão em outro portal
+				// remove as últimas disciplinas que são do SENAI e estão em outro portal
 				lista.push({
 					[materias[i]]: {
 						"Primeiro Bimestre": Number(notas1[i]),
@@ -144,7 +146,7 @@ async function getGrades() {
 					},
 				})
 			}
-			return lista
+			return lista.slice(0, lista.length - 1)
 		} else {
 			let materias = [],
 				medias = []
